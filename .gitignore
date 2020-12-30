@@ -2,7 +2,6 @@
 .vs/*
 PartyBot/obj/*
 PartyBot/bin/*
-*.json
 /PartyBot/LavaLink/*
 /PartyBot/Properties/*
 PartyBot/PartyBot.csproj.user
