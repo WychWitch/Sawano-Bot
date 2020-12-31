@@ -14,6 +14,7 @@ namespace PartyBot.Services
 {
     public sealed class LavaLinkAudio
     {
+        LavaTrack track = new LavaTrack();
         private readonly LavaNode _lavaNode;
 
         public LavaLinkAudio(LavaNode lavaNode)
@@ -83,8 +84,8 @@ namespace PartyBot.Services
                 //Get the player for that guild.
                 var player = _lavaNode.GetPlayer(guild);
 
-                //Find The Youtube Track the User requested.
-                LavaTrack track;
+                ////Find The Youtube Track the User requested.
+                //LavaTrack track;
 
                 var search = Uri.IsWellFormedUriString(query, UriKind.Absolute) ?
                     await _lavaNode.SearchAsync(query)
@@ -120,6 +121,11 @@ namespace PartyBot.Services
                 return await EmbedHandler.CreateErrorEmbed("Music, Play", ex.Message);
             }
 
+        }
+
+        public async Task<Embed> NpAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
+        {
+            return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes}:{track.Position.Seconds}/{track.Duration.Minutes}:{track.Duration.Seconds}", Color.Blue);
         }
 
         /*This is ran when a user uses the command Leave.
