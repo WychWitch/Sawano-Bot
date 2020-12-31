@@ -25,7 +25,7 @@ namespace PartyBot.Modules
 
         [Command("Play")]
         public async Task Play([Remainder]string search)
-            => await ReplyAsync(embed: await AudioService.PlayAsync(Context.User as SocketGuildUser, Context.Guild, search));
+            => await ReplyAsync(embed: await AudioService.PlayAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
 
         [Command("Stop")]
         public async Task Stop()
