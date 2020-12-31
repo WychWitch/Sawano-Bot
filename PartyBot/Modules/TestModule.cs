@@ -11,9 +11,9 @@ namespace PartyBot.Modules
     public class TestModule : ModuleBase<SocketCommandContext>
     {
         [Command("test")]
-        public async Task test()
+        public async Task test(string reply)
         {
-            await ReplyAsync("motherfucker");
+            await ReplyAsync(reply);
         }
     }
 }
