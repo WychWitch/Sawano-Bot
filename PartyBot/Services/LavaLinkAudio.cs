@@ -45,7 +45,7 @@ namespace PartyBot.Services
         /*This is ran when a user uses either the command Join or Play
             I decided to put these two commands as one, will probably change it in future. 
             Task Returns an Embed which is used in the command call.. */
-        public async Task<Embed> PlayAsync(SocketGuildUser user, IGuild guild, string query)
+        public async Task<Embed> PlayAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel, string query)
         {
             //Check If User Is Connected To Voice Cahnnel.
             if (user.VoiceChannel == null)
@@ -53,10 +53,29 @@ namespace PartyBot.Services
                 return await EmbedHandler.CreateErrorEmbed("Music, Join/Play", "You Must First Join a Voice Channel.");
             }
 
+
+
             //Check the guild has a player available.
             if (!_lavaNode.HasPlayer(guild))
             {
-                return await EmbedHandler.CreateErrorEmbed("Music, Play", "I'm not connected to a voice channel.");
+                if (_lavaNode.HasPlayer(guild))
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", "I'm already connected to a voice channel!");
+                }
+
+                if (voiceState.VoiceChannel is null)
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", "You must be connected to a voice channel!");
+                }
+
+                try
+                {
+                    await _lavaNode.JoinAsync(voiceState.VoiceChannel, textChannel);
+                }
+                catch (Exception ex)
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", ex.Message);
+                }
             }
 
             try
@@ -92,7 +111,7 @@ namespace PartyBot.Services
                 //Player was not playing anything, so lets play the requested track.
                 await player.PlayAsync(track);
                 await LoggingService.LogInformationAsync("Music", $"Bot Now Playing: {track.Title}\nUrl: {track.Url}");
-                return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: {track.Title}\nUrl: {track.Url}", Color.Blue);
+                return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: {track.Title}\nIn: #{voiceState.VoiceChannel.Name} @ {voiceState.VoiceChannel.Bitrate / 1000} kbps \n{track.Url}", Color.Blue);
             }
 
             //If after all the checks we did, something still goes wrong. Tell the user about it so they can report it back to us.
@@ -122,7 +141,7 @@ namespace PartyBot.Services
                 await _lavaNode.LeaveAsync(player.VoiceChannel);
 
                 await LoggingService.LogInformationAsync("Music", $"Bot has left.");
-                return await EmbedHandler.CreateBasicEmbed("Music", $"I've left. Thank you for playing moosik.", Color.Blue);
+                return await EmbedHandler.CreateBasicEmbed("Music", $"See ya!", Color.Blue);
             }
             //Tell the user about the error so they can report it back to us.
             catch (InvalidOperationException ex)
@@ -151,7 +170,7 @@ namespace PartyBot.Services
                         In this situation we simply return an embed that displays the current track instead. */
                     if (player.Queue.Count < 1 && player.Track != null)
                     {
-                        return await EmbedHandler.CreateBasicEmbed($"Now Playing: {player.Track.Title}", "Nothing Else Is Queued.", Color.Blue);
+                        return await EmbedHandler.CreateBasicEmbed($"Now Playing: {player.Track.Title}", "Nothing else is queued.", Color.Blue);
                     }
                     else
                     {
@@ -169,7 +188,7 @@ namespace PartyBot.Services
                 }
                 else
                 {
-                    return await EmbedHandler.CreateErrorEmbed("Music, List", "Player doesn't seem to be playing anything right now. If this is an error, Please Contact Draxis.");
+                    return await EmbedHandler.CreateErrorEmbed("Music, List", "Player doesn't seem to be playing anything right now.");
                 }
             }
             catch (Exception ex)
@@ -193,7 +212,7 @@ namespace PartyBot.Services
                      User is expected to use the Stop command if they're only wanting to skip the current song. */
                 if (player.Queue.Count < 1)
                 {
-                    return await EmbedHandler.CreateErrorEmbed("Music, SkipTrack", $"Unable To skip a track as there is only One or No songs currently playing." +
+                    return await EmbedHandler.CreateErrorEmbed("Music, SkipTrack", $"Unable To skip a track as there is only one or no songs currently playing." +
                         $"\n\nDid you mean {GlobalData.Config.DefaultPrefix}Stop?");
                 }
                 else
@@ -239,7 +258,7 @@ namespace PartyBot.Services
                 }
 
                 await LoggingService.LogInformationAsync("Music", $"Bot has stopped playback.");
-                return await EmbedHandler.CreateBasicEmbed("Music Stop", "I Have stopped playback & the playlist has been cleared.", Color.Blue);
+                return await EmbedHandler.CreateBasicEmbed("Music Stop", "I have stopped playback, and the playlist has been cleared.", Color.Blue);
             }
             catch (Exception ex)
             {
@@ -280,7 +299,7 @@ namespace PartyBot.Services
                 }
 
                 await player.PauseAsync();
-                return $"**Paused:** {player.Track.Title}, what a bamboozle.";
+                return $"**Paused:** {player.Track.Title}";
             }
             catch (InvalidOperationException ex)
             {
