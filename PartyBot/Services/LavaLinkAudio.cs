@@ -111,7 +111,7 @@ namespace PartyBot.Services
                 //Player was not playing anything, so lets play the requested track.
                 await player.PlayAsync(track);
                 await LoggingService.LogInformationAsync("Music", $"Bot Now Playing: {track.Title}\nUrl: {track.Url}");
-                return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: {track.Title}\nIn: #{voiceState.VoiceChannel.Name} @ {voiceState.VoiceChannel.Bitrate / 1000} kbps \n{track.Url}", Color.Blue);
+                return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes}:{track.Position.Seconds}/{track.Duration.Minutes}:{track.Duration.Seconds}", Color.Blue);
             }
 
             //If after all the checks we did, something still goes wrong. Tell the user about it so they can report it back to us.
