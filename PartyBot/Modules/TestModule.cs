@@ -11,14 +11,9 @@ namespace PartyBot.Modules
     public class TestModule : ModuleBase<SocketCommandContext>
     {
         [Command("test")]
-        public async Task test(SocketGuildUser user)
+        public async Task test()
         {
-            var message = await Context.Channel.GetMessageAsync(552567071490310165) as IUserMessage;
-            var reactions = message.Reactions;
-            foreach (var r in reactions)
-            {
-                await message.RemoveReactionAsync(r.Key, user as IUser);
-            }
+            await ReplyAsync("motherfucker");
         }
     }
 }
