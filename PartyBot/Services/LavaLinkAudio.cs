@@ -127,6 +127,7 @@ namespace PartyBot.Services
 
         public async Task<Embed> NpAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
         {
+            double progress = track.Position / track.Duration;
             return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes:d2}:{track.Position.Seconds:d2}/{track.Duration.Minutes:d2}:{track.Duration.Seconds:d2}", Color.Blue);
         }
 
