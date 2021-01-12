@@ -22,6 +22,63 @@ namespace PartyBot.Services
         public LavaLinkAudio(LavaNode lavaNode)
             => _lavaNode = lavaNode;
 
+        public string ProgressBar()
+        {
+            double progress = Math.Round((track.Position / track.Duration), 1);
+            string progressBar;
+
+            switch (progress)
+            {
+                case .10:
+                    progressBar = "▬▬⭕▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
+                    break;
+                case .20:
+                    progressBar = "▬▬▬▬⭕▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
+                    break;
+                case .30:
+                    progressBar = "▬▬▬▬▬▬⭕▬▬▬▬▬▬▬▬▬▬▬▬▬";
+                    break;
+                case .40:
+                    progressBar = "▬▬▬▬▬▬▬▬⭕▬▬▬▬▬▬▬▬▬▬▬";
+                    break;
+                case .50:
+                    progressBar = "▬▬▬▬▬▬▬▬▬▬⭕▬▬▬▬▬▬▬▬▬";
+                    break;
+                case .60:
+                    progressBar = "▬▬▬▬▬▬▬▬▬▬▬▬⭕▬▬▬▬▬▬▬";
+                    break;
+                case .70:
+                    progressBar = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬⭕▬▬▬▬▬";
+                    break;
+                case .80:
+                    progressBar = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⭕▬▬▬";
+                    break;
+                case .90:
+                    progressBar = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⭕▬";
+                    break;
+                default:
+                    progressBar = "⭕▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
+                    break;
+            }
+            return progressBar;
+        }
+
+        public string DurationFormatter()
+        {
+            string duration;
+
+            if (track.Duration.TotalMinutes >= 60)
+            {
+                duration = $"{track.Position.Hours:d2}:{track.Position.Minutes:d2}:{ track.Position.Seconds:d2}/{track.Duration.Hours:d2}:{track.Duration.Minutes:d2}:{ track.Duration.Seconds:d2}";
+            }
+            else
+            {
+                duration = $"{track.Position.Minutes:d2}:{ track.Position.Seconds:d2}/{ track.Duration.Minutes:d2}:{ track.Duration.Seconds:d2}";
+            }
+
+            return duration;
+        }
+
         public async Task<Embed> JoinAsync(IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
         {
             if (_lavaNode.HasPlayer(guild))
@@ -116,7 +173,9 @@ namespace PartyBot.Services
                 //Player was not playing anything, so lets play the requested track.
                 await player.PlayAsync(track);
                 await LoggingService.LogInformationAsync("Music", $"Bot Now Playing: {track.Title}\nUrl: {track.Url}");
-                return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes:d2}:{track.Position.Seconds:d2}/{track.Duration.Minutes:d2}:{track.Duration.Seconds:d2}", Color.Blue);
+                string progressBar = ProgressBar();
+                string duration = DurationFormatter();
+                return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{progressBar} {duration}", Color.Blue);
             }
 
             //If after all the checks we did, something still goes wrong. Tell the user about it so they can report it back to us.
@@ -214,8 +273,9 @@ namespace PartyBot.Services
 
         public async Task<Embed> NpAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
         {
-            double progress = track.Position / track.Duration;
-            return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes:d2}:{track.Position.Seconds:d2}/{track.Duration.Minutes:d2}:{track.Duration.Seconds:d2}", Color.Blue);
+            string progressBar = ProgressBar();
+            string duration = DurationFormatter();
+            return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n {progressBar} {duration}", Color.Blue);
         }
 
         /*This is ran when a user uses the command Leave.
