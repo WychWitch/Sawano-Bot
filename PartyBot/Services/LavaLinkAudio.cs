@@ -125,7 +125,7 @@ namespace PartyBot.Services
 
         public async Task<Embed> NpAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
         {
-            return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes:d2}:{track.Position.Seconds:d2}/{track.Duration.Minute:d2s}:{track.Duration.Seconds:d2}", Color.Blue);
+            return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes:d2}:{track.Position.Seconds:d2}/{track.Duration.Minutes:d2}:{track.Duration.Seconds:d2}", Color.Blue);
         }
 
         /*This is ran when a user uses the command Leave.
