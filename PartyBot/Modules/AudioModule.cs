@@ -20,11 +20,11 @@ namespace PartyBot.Modules
             => await ReplyAsync(embed: await AudioService.JoinAsync(Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel));
 
         [Command("Leave")]
-        [Alias("quit")]
         public async Task Leave()
             => await ReplyAsync(embed: await AudioService.LeaveAsync(Context.Guild));
 
         [Command("Play")]
+        [Alias("p")]
         public async Task Play([Remainder]string search)
             => await ReplyAsync(embed: await AudioService.PlayAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
         
@@ -39,6 +39,7 @@ namespace PartyBot.Modules
             => await ReplyAsync(embed: await AudioService.NpAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel));
 
         [Command("Stop")]
+        [Alias("quit")]
         public async Task Stop()
             => await ReplyAsync(embed: await AudioService.StopAsync(Context.Guild));
 
