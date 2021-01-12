@@ -60,7 +60,6 @@ namespace PartyBot.Services
 
 
 
-
             //Check the guild has a player available.
             if (!_lavaNode.HasPlayer(guild))
             {
@@ -109,14 +108,7 @@ namespace PartyBot.Services
                 //If the Bot is already playing music, or if it is paused but still has music in the playlist, Add the requested track to the queue.
                 if (player.Track != null && player.PlayerState is PlayerState.Playing || player.PlayerState is PlayerState.Paused)
                 {
-                    List<Victoria.Interfaces.IQueueable> oldQueue = player.Queue.ToList();
-                    player.Queue.Clear();
                     player.Queue.Enqueue(track);
-                    foreach(var oldTrack in oldQueue)
-                    {
-                        player.Queue.Enqueue(oldTrack);
-                    }
-
                     await LoggingService.LogInformationAsync("Music", $"{track.Title} has been added to the music queue.");
                     return await EmbedHandler.CreateBasicEmbed("Music", $"{track.Title} has been added to queue.", Color.Blue);
                 }
@@ -194,7 +186,13 @@ namespace PartyBot.Services
                 //If the Bot is already playing music, or if it is paused but still has music in the playlist, Add the requested track to the queue.
                 if (player.Track != null && player.PlayerState is PlayerState.Playing || player.PlayerState is PlayerState.Paused)
                 {
-                    player.Queue.Prepend<Victoria.Interfaces.IQueueable>(track);
+                    List<Victoria.Interfaces.IQueueable> oldQueue = player.Queue.ToList();
+                    player.Queue.Clear();
+                    player.Queue.Enqueue(track);
+                    foreach (var oldTrack in oldQueue)
+                    {
+                        player.Queue.Enqueue(oldTrack);
+                    }
                     await LoggingService.LogInformationAsync("Music", $"{track.Title} has been added to the music queue.");
                     return await EmbedHandler.CreateBasicEmbed("Music", $"{track.Title} has been added to queue.", Color.Blue);
                 }
