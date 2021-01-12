@@ -31,7 +31,7 @@ namespace PartyBot.Modules
         [Command("PlayNext")]
         [Alias("pn")]
         public async Task PlayNext([Remainder]string search)
-            => await ReplyAsync(embed: await AudioService.PlayAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
+            => await ReplyAsync(embed: await AudioService.PlayNextAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
 
 
         [Command("np")]

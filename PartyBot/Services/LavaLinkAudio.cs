@@ -252,8 +252,8 @@ namespace PartyBot.Services
                     {
                         player.Queue.Enqueue(oldTrack);
                     }
-                    await LoggingService.LogInformationAsync("Music", $"{track.Title} has been added to the music queue.");
-                    return await EmbedHandler.CreateBasicEmbed("Music", $"{track.Title} has been added to queue.", Color.Blue);
+                    await LoggingService.LogInformationAsync("Music", $"{track.Title} has been added to the top of the queue!");
+                    return await EmbedHandler.CreateBasicEmbed("Music", $"{track.Title} has been added to the top of the queue!", Color.Red);
                 }
 
                 //Player was not playing anything, so lets play the requested track.
