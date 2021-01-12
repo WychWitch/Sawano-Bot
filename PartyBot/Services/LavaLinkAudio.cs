@@ -9,6 +9,8 @@ using Victoria;
 using Victoria.EventArgs;
 using Victoria.Enums;
 using Victoria.Responses.Rest;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace PartyBot.Services
 {
@@ -49,6 +51,92 @@ namespace PartyBot.Services
 
             /*s*/
         public async Task<Embed> PlayAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel, string query)
+        {
+            //Check If User Is Connected To Voice Cahnnel.
+            if (user.VoiceChannel == null)
+            {
+                return await EmbedHandler.CreateErrorEmbed("Music, Join/Play", "You Must First Join a Voice Channel.");
+            }
+
+
+
+
+            //Check the guild has a player available.
+            if (!_lavaNode.HasPlayer(guild))
+            {
+                if (_lavaNode.HasPlayer(guild))
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", "I'm already connected to a voice channel!");
+                }
+
+                if (voiceState.VoiceChannel is null)
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", "You must be connected to a voice channel!");
+                }
+
+                try
+                {
+                    await _lavaNode.JoinAsync(voiceState.VoiceChannel, textChannel);
+                }
+                catch (Exception ex)
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", ex.Message);
+                }
+            }
+
+            try
+            {
+                //Get the player for that guild.
+                var player = _lavaNode.GetPlayer(guild);
+
+                ////Find The Youtube Track the User requested.
+                //LavaTrack track;
+
+                var search = Uri.IsWellFormedUriString(query, UriKind.Absolute) ?
+                    await _lavaNode.SearchAsync(query)
+                    : await _lavaNode.SearchYouTubeAsync(query);
+
+                //If we couldn't find anything, tell the user.
+                if (search.LoadStatus == LoadStatus.NoMatches)
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music", $"I wasn't able to find anything for {query}.");
+                }
+
+                //Get the first track from the search results.
+                //TODO: Add a 1-5 list for the user to pick from. (Like Fredboat)
+                track = search.Tracks.FirstOrDefault();
+
+                //If the Bot is already playing music, or if it is paused but still has music in the playlist, Add the requested track to the queue.
+                if (player.Track != null && player.PlayerState is PlayerState.Playing || player.PlayerState is PlayerState.Paused)
+                {
+                    List<Victoria.Interfaces.IQueueable> oldQueue = player.Queue.ToList();
+                    player.Queue.Clear();
+                    player.Queue.Enqueue(track);
+                    foreach(var oldTrack in oldQueue)
+                    {
+                        player.Queue.Enqueue(oldTrack);
+                    }
+
+                    await LoggingService.LogInformationAsync("Music", $"{track.Title} has been added to the music queue.");
+                    return await EmbedHandler.CreateBasicEmbed("Music", $"{track.Title} has been added to queue.", Color.Blue);
+                }
+
+                //Player was not playing anything, so lets play the requested track.
+                await player.PlayAsync(track);
+                await LoggingService.LogInformationAsync("Music", $"Bot Now Playing: {track.Title}\nUrl: {track.Url}");
+                return await EmbedHandler.CreateBasicEmbed("Music", $"Now Playing: [{track.Title}]({track.Url})\n{track.Position.Minutes:d2}:{track.Position.Seconds:d2}/{track.Duration.Minutes:d2}:{track.Duration.Seconds:d2}", Color.Blue);
+            }
+
+            //If after all the checks we did, something still goes wrong. Tell the user about it so they can report it back to us.
+            catch (Exception ex)
+            {
+                return await EmbedHandler.CreateErrorEmbed("Music, Play", ex.Message);
+            }
+
+        }
+
+
+        public async Task<Embed> PlayNextAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel, string query)
         {
             //Check If User Is Connected To Voice Cahnnel.
             if (user.VoiceChannel == null)
@@ -106,7 +194,7 @@ namespace PartyBot.Services
                 //If the Bot is already playing music, or if it is paused but still has music in the playlist, Add the requested track to the queue.
                 if (player.Track != null && player.PlayerState is PlayerState.Playing || player.PlayerState is PlayerState.Paused)
                 {
-                    player.Queue.Enqueue(track);
+                    player.Queue.Prepend<Victoria.Interfaces.IQueueable>(track);
                     await LoggingService.LogInformationAsync("Music", $"{track.Title} has been added to the music queue.");
                     return await EmbedHandler.CreateBasicEmbed("Music", $"{track.Title} has been added to queue.", Color.Blue);
                 }
@@ -124,6 +212,7 @@ namespace PartyBot.Services
             }
 
         }
+
 
         public async Task<Embed> NpAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
         {
