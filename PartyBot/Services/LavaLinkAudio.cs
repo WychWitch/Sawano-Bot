@@ -46,6 +46,8 @@ namespace PartyBot.Services
         /*This is ran when a user uses either the command Join or Play
             I decided to put these two commands as one, will probably change it in future. 
             Task Returns an Embed which is used in the command call.. */
+
+            /*s*/
         public async Task<Embed> PlayAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel, string query)
         {
             //Check If User Is Connected To Voice Cahnnel.
