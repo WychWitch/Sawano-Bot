@@ -20,12 +20,20 @@ namespace PartyBot.Modules
             => await ReplyAsync(embed: await AudioService.JoinAsync(Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel));
 
         [Command("Leave")]
+        [Alias("quit")]
         public async Task Leave()
             => await ReplyAsync(embed: await AudioService.LeaveAsync(Context.Guild));
 
         [Command("Play")]
         public async Task Play([Remainder]string search)
             => await ReplyAsync(embed: await AudioService.PlayAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
+        
+        [Command("PlayNext")]
+        [Alias("pn")]
+        public async Task PlayNext([Remainder]string search)
+            => await ReplyAsync(embed: await AudioService.PlayAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
+
+
         [Command("np")]
         public async Task np()
             => await ReplyAsync(embed: await AudioService.NpAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel));
@@ -34,7 +42,8 @@ namespace PartyBot.Modules
         public async Task Stop()
             => await ReplyAsync(embed: await AudioService.StopAsync(Context.Guild));
 
-        [Command("List")]
+        [Command("Queue")]
+        [Alias("q")]
         public async Task List()
             => await ReplyAsync(embed: await AudioService.ListAsync(Context.Guild));
 
@@ -43,6 +52,7 @@ namespace PartyBot.Modules
             => await ReplyAsync(embed: await AudioService.SkipTrackAsync(Context.Guild));
 
         [Command("Volume")]
+        [Alias("vol")]
         public async Task Volume(int volume)
             => await ReplyAsync(await AudioService.SetVolumeAsync(Context.Guild, volume));
 
