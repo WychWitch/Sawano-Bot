@@ -186,6 +186,41 @@ namespace PartyBot.Services
 
         }
 
+        public async Task<Embed> JumpAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel, string number)
+        {
+            var player = _lavaNode.GetPlayer(guild);
+            int num;
+            if (int.TryParse(number, out num))
+            {
+                if (num > player.Queue.Count())
+                {
+                    return await EmbedHandler.CreateBasicEmbed("Error", "Number was too big!", Color.Blue);
+                }
+                else
+                {
+                    List<Victoria.Interfaces.IQueueable> oldQueue = player.Queue.ToList();
+                    player.Queue.Clear();
+                    await player.PlayAsync(oldQueue.ElementAt(num - 1) as LavaTrack);
+
+                    for (int i = num; i < oldQueue.Count(); i++)
+                    {
+                        player.Queue.Enqueue(oldQueue.ElementAt(i));
+                    }
+
+
+                    await LoggingService.LogInformationAsync("Music", $"Jumped to {track.Title}!");
+                    return await EmbedHandler.CreateBasicEmbed("Music", $"Jumped to {track.Title}!", Color.Red);
+                }
+                
+            }
+            else
+            {
+                return await EmbedHandler.CreateBasicEmbed("Error", "You provided an invalid string. Try a real number", Color.Blue);
+            }
+            
+
+        }
+
         public async Task<Embed> ShuffleAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
         {
             //Check If User Is Connected To Voice Cahnnel.
@@ -450,6 +485,8 @@ namespace PartyBot.Services
                 return await EmbedHandler.CreateErrorEmbed("Music, Skip", ex.Message);
             }
         }
+
+
 
         /*This is ran when a user uses the command Stop 
             Task Returns an Embed which is used in the command call. */
