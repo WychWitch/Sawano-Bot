@@ -186,6 +186,62 @@ namespace PartyBot.Services
 
         }
 
+        public async Task<Embed> ShuffleAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
+        {
+            //Check If User Is Connected To Voice Cahnnel.
+            if (user.VoiceChannel == null)
+            {
+                return await EmbedHandler.CreateErrorEmbed("Music, Join/Play", "You Must First Join a Voice Channel.");
+            }
+
+
+
+            //Check the guild has a player available.
+            if (!_lavaNode.HasPlayer(guild))
+            {
+                if (_lavaNode.HasPlayer(guild))
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", "I'm already connected to a voice channel!");
+                }
+
+                if (voiceState.VoiceChannel is null)
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", "You must be connected to a voice channel!");
+                }
+
+                try
+                {
+                    await _lavaNode.JoinAsync(voiceState.VoiceChannel, textChannel);
+                }
+                catch (Exception ex)
+                {
+                    return await EmbedHandler.CreateErrorEmbed("Music, Join", ex.Message);
+                }
+            }
+
+            try
+            {
+                //Get the player for that guild.
+                var player = _lavaNode.GetPlayer(guild);
+
+                if (player.Queue.Count < 2)
+                {
+                    return await EmbedHandler.CreateBasicEmbed("Music", $"Not enough songs to shuffle!", Color.Blue);
+                }
+                else
+                {
+                    player.Queue.Shuffle();
+                    return await EmbedHandler.CreateBasicEmbed("Music", $"Shuffled!!", Color.Blue);
+                }
+            }
+
+            //If after all the checks we did, something still goes wrong. Tell the user about it so they can report it back to us.
+            catch (Exception ex)
+            {
+                return await EmbedHandler.CreateErrorEmbed("Music, Play", ex.Message);
+            }
+
+        }
 
         public async Task<Embed> PlayNextAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel, string query)
         {

@@ -22,6 +22,10 @@ namespace PartyBot.Modules
         [Command("Leave")]
         public async Task Leave()
             => await ReplyAsync(embed: await AudioService.LeaveAsync(Context.Guild));
+        
+        [Command("Shuffle")]
+        public async Task Shuffle()
+            => await ReplyAsync(embed: await AudioService.ShuffleAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel));
 
         [Command("Play")]
         [Alias("p")]
