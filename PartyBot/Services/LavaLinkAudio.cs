@@ -389,13 +389,13 @@ namespace PartyBot.Services
                         /* Now we know if we have something in the queue worth replying with, so we itterate through all the Tracks in the queue.
                          *  Next Add the Track title and the url however make use of Discords Markdown feature to display everything neatly.
                             This trackNum variable is used to display the number in which the song is in place. (Start at 2 because we're including the current song.*/
-                        var trackNum = 2;
+                        var trackNum = 1;
                         foreach (LavaTrack track in player.Queue)
                         {
-                            descriptionBuilder.Append($"{trackNum}: [{track.Title}]({track.Url}) - {track.Id}\n");
+                            descriptionBuilder.Append($"{trackNum}) [{track.Title}]({track.Url})\n");
                             trackNum++;
                         }
-                        return await EmbedHandler.CreateBasicEmbed("Music Playlist", $"Now Playing: [{player.Track.Title}]({player.Track.Url}) \n{descriptionBuilder}", Color.Blue);
+                        return await EmbedHandler.CreateBasicEmbed("Music Playlist", $"Now Playing: [{player.Track.Title}]({player.Track.Url}) \n \n{descriptionBuilder}", Color.Blue);
                     }
                 }
                 else
