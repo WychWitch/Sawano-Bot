@@ -38,6 +38,11 @@ namespace PartyBot.Modules
             => await ReplyAsync(embed: await AudioService.PlayNextAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
 
 
+        [Command("Move")]
+        [Alias("mv")]
+        public async Task Move([Remainder]string search)
+    => await ReplyAsync(embed: await AudioService.MoveTrackAsync(Context.User as SocketGuildUser, Context.Guild, Context.User as IVoiceState, Context.Channel as ITextChannel, search));
+
         [Command("Jump")]
         [Alias("jmp")]
         public async Task Jump([Remainder]string search)

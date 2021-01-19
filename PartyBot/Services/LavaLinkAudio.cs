@@ -221,6 +221,49 @@ namespace PartyBot.Services
 
         }
 
+
+        public async Task<Embed> MoveTrackAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel, string tracks)
+        {
+            var player = _lavaNode.GetPlayer(guild);
+
+            string[] trackArr = tracks.Split(" ");
+
+            int fTrackInt;
+            int sTrackInt;
+
+            if (int.TryParse(trackArr[0], out fTrackInt) && int.TryParse(trackArr[1], out sTrackInt))
+            {
+                if (fTrackInt > 0 && fTrackInt <= player.Queue.Count && sTrackInt > 0 && sTrackInt <= player.Queue.Count)
+                {
+                    List<Victoria.Interfaces.IQueueable> oldQueue = player.Queue.ToList();
+                    player.Queue.Clear();
+                    Victoria.Interfaces.IQueueable tempTrack = oldQueue[fTrackInt - 1];
+
+                    oldQueue.RemoveAt(fTrackInt - 1);
+
+                    oldQueue.Insert(sTrackInt - 1, tempTrack);
+
+
+                    for (int i = 0; i < oldQueue.Count(); i++)
+                    {
+                        player.Queue.Enqueue(oldQueue.ElementAt(i));
+                    }
+
+                    return await EmbedHandler.CreateBasicEmbed("Move track", "Moved track!", Color.Blue);
+                }
+                else
+                {
+                    return await EmbedHandler.CreateBasicEmbed("Error", "One of your numbers were out of range", Color.Red);
+                }
+                
+            }
+            else
+            {
+                return await EmbedHandler.CreateBasicEmbed("Error", "Please insert a real number", Color.Red);
+            }
+            
+        }
+
         public async Task<Embed> ShuffleAsync(SocketGuildUser user, IGuild guild, IVoiceState voiceState, ITextChannel textChannel)
         {
             //Check If User Is Connected To Voice Cahnnel.
